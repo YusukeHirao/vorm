@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<title>basic test - vorm</title>
+<link rel="stylesheet" href="../node_modules/qunitjs/qunit/qunit.css">
+
+</head>
+<body>
+
+<div id="qunit"></div>
+<div id="qunit-fixture">
+	<form action="./" method="post" name="test">
+
+		<input type="text" name="name">
+
+	</form>
+</div>
+
+<!-- Libraries -->
+<script src="../bower_components/jquery/dist/jquery.js"></script>
+
+<!-- Core Module -->
+<script src="../src/vorm.js"></script>
+
+<!-- Qunit -->
+<script src="../node_modules/qunitjs/qunit/qunit.js"></script>
+
+<!-- Test Code -->
+<script>
+"use strict";
+
+test('vorm関数 - 引数例外処理1', function() {
+	try {
+		vorm('hogehoge');
+	} catch (error) {
+		ok(error instanceof TypeError, 'エラーオブジェクトの型');
+		equal(error.message, 'A Form element was not found by name: hogehoge', 'エラーメッセージ');
+	}
+});
+
+test('vorm関数 - 引数例外処理2', function() {
+	try {
+		vorm(document);
+	} catch (error) {
+		ok(error instanceof TypeError, 'エラーオブジェクトの型');
+		equal(error.message, 'A got element is not a Form element', 'エラーメッセージ');
+	}
+});
+
+test('vorm関数 - フォーム要素取得1', function() {
+	var vormEl = vorm('test');
+	ok(vormEl.el.nodeName === 'FORM', 'フォーム要素取得成功');
+});
+
+test('vorm関数 - フォーム要素取得2', function() {
+	var vormEl = vorm(document.forms[0]);
+	ok(vormEl.el.nodeName === 'FORM', 'フォーム要素取得成功');
+});
+
+test('vorm関数 - 入力取得2', function() {
+	var vormEl = vorm(document.forms[0]);
+	ok(vormEl.el.nodeName === 'FORM', 'フォーム要素取得成功');
+});
+
+</script>
+
+</body>
+</html>
