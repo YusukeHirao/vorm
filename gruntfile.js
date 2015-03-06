@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 
-  const DEST = 'src/vorm.js';
-  const DEST_MIN = 'vorm.min.js';
+  const DEST = 'dist/vorm.js';
+  const DEST_MIN = 'dist/vorm.min.js';
 
   var pkg = grunt.file.readJSON('package.json');
 
@@ -16,6 +16,31 @@ module.exports = function(grunt) {
         ' * Github: <%= pkg.repository.url %>\n' +
         ' * License: Licensed under the <%= pkg.license %> License\n' +
         ' */'
+    },
+    typescript: {
+      options: {
+        comments: true,
+        declaration: true
+      },
+      dist: {
+        src: 'src/index.ts',
+        dest: '__tmp/bare-vorm.js'
+      }
+    },
+    concat: {
+      dist: {
+        options: {
+          banner: '<%= meta.banner %>' + '\n' +
+          '\n' +
+          ''
+        },
+        src: [
+          'src/__wrap/__intro.js',
+          '<%= typescript.dist.dest %>',
+          'src/__wrap/__outro.js'
+        ],
+        dest: DEST
+      }
     },
     uglify: {
       dist: {
@@ -34,15 +59,36 @@ module.exports = function(grunt) {
       all: [
         'test/*.html'
       ]
+    },
+    watch: {
+      scripts: {
+        files: [
+          'src/*.ts',
+          'src/**/*.ts',
+        ],
+        tasks: [
+          'typescript',
+          'concat',
+          'uglify'
+        ],
+        options: {
+          interrupt: true
+        }
+      }
     }
   });
 
   grunt.registerTask('default', [
+    'typescript',
+    'concat',
     'uglify',
     'qunit'
   ]);
 
+  grunt.loadNpmTasks('grunt-typescript');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-qunit');
 
 };

@@ -1,0 +1,15 @@
+{
+  "repos": [
+    {
+      "url": "https://github.com/borisyankov/DefinitelyTyped.git",
+      "ref": "master"
+    }
+  ],
+  "path": "typings",
+  "bundle": "typings/bundle.d.ts",
+  "dependencies": {
+    "underscore/underscore.d.ts": {
+      "ref": "bb465f2cc799a41a7ccb688c6d1a8f5583dda12d"
+    }
+  }
+}

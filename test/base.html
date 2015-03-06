@@ -12,17 +12,71 @@
 <div id="qunit"></div>
 <div id="qunit-fixture">
 	<form action="./" method="post" name="test">
-
-		<input type="text" name="name">
-
+		<label>name: <input type="text" name="name"></label>
+		<label>honorific-prefix: <input type="text" name="honorific-prefix"></label>
+		<label>given-name: <input type="text" name="given-name"></label>
+		<label>additional-name: <input type="text" name="additional-name"></label>
+		<label>family-name: <input type="text" name="family-name"></label>
+		<label>honorific-suffix: <input type="text" name="honorific-suffix"></label>
+		<label>nickname: <input type="text" name="nickname"></label>
+		<label>organization-title: <input type="text" name="organization-title"></label>
+		<label>username: <input type="text" name="username"></label>
+		<label>new-password: <input type="text" name="new-password"></label>
+		<label>current-password: <input type="text" name="current-password"></label>
+		<label>organization: <input type="text" name="organization"></label>
+		<label>street-address: <input type="text" name="street-address"></label>
+		<label>address-line1: <input type="text" name="address-line1"></label>
+		<label>address-line2: <input type="text" name="address-line2"></label>
+		<label>address-line3: <input type="text" name="address-line3"></label>
+		<label>address-level4: <input type="text" name="address-level4"></label>
+		<label>address-level3: <input type="text" name="address-level3"></label>
+		<label>address-level2: <input type="text" name="address-level2"></label>
+		<label>address-level1: <input type="text" name="address-level1"></label>
+		<label>country: <input type="text" name="country"></label>
+		<label>country-name: <input type="text" name="country-name"></label>
+		<label>postal-code: <input type="text" name="postal-code"></label>
+		<label>cc-name: <input type="text" name="cc-name"></label>
+		<label>cc-given-name: <input type="text" name="cc-given-name"></label>
+		<label>cc-additional-name: <input type="text" name="cc-additional-name"></label>
+		<label>cc-family-name: <input type="text" name="cc-family-name"></label>
+		<label>cc-number: <input type="text" name="cc-number"></label>
+		<label>cc-exp: <input type="text" name="cc-exp"></label>
+		<label>cc-exp-month: <input type="text" name="cc-exp-month"></label>
+		<label>cc-exp-year: <input type="text" name="cc-exp-year"></label>
+		<label>cc-csc: <input type="text" name="cc-csc"></label>
+		<label>cc-type: <input type="text" name="cc-type"></label>
+		<label>transaction-currency: <input type="text" name="transaction-currency"></label>
+		<label>transaction-amount: <input type="text" name="transaction-amount"></label>
+		<label>language: <input type="text" name="language"></label>
+		<label>bday: <input type="text" name="bday"></label>
+		<label>bday-day: <input type="text" name="bday-day"></label>
+		<label>bday-month: <input type="text" name="bday-month"></label>
+		<label>bday-year: <input type="text" name="bday-year"></label>
+		<label>sex: <input type="text" name="sex"></label>
+		<label>url: <input type="text" name="url"></label>
+		<label>photo: <input type="text" name="photo"></label>
+		<label>tel: <input type="text" name="tel"></label>
+		<label>tel-country-code: <input type="text" name="tel-country-code"></label>
+		<label>tel-national: <input type="text" name="tel-national"></label>
+		<label>tel-area-code: <input type="text" name="tel-area-code"></label>
+		<label>tel-local: <input type="text" name="tel-local"></label>
+		<label>tel-local-prefix: <input type="text" name="tel-local-prefix"></label>
+		<label>tel-local-suffix: <input type="text" name="tel-local-suffix"></label>
+		<label>tel-extension: <input type="text" name="tel-extension"></label>
+		<label>email: <input type="text" name="email"></label>
+		<label>impp: <input type="text" name="impp"></label>
 	</form>
 </div>
 
 <!-- Libraries -->
 <script src="../bower_components/jquery/dist/jquery.js"></script>
 
+<!-- Require -->
+<script src="../bower_components/jaco/lib/jaco.min.js"></script>
+<script src="../bower_components/underscore/underscore-min.js"></script>
+
 <!-- Core Module -->
-<script src="../src/vorm.js"></script>
+<script src="../dist/vorm.js"></script>
 
 <!-- Qunit -->
 <script src="../node_modules/qunitjs/qunit/qunit.js"></script>
@@ -31,38 +85,102 @@
 <script>
 "use strict";
 
-test('vorm関数 - 引数例外処理1', function() {
-	try {
-		vorm('hogehoge');
-	} catch (error) {
-		ok(error instanceof TypeError, 'エラーオブジェクトの型');
-		equal(error.message, 'A Form element was not found by name: hogehoge', 'エラーメッセージ');
-	}
-});
+// test('vorm関数 - 引数例外処理1', function() {
+// 	try {
+// 		vorm('hogehoge');
+// 	} catch (error) {
+// 		ok(error instanceof TypeError, 'エラーオブジェクトの型');
+// 		equal(error.message, 'A Form element was not found by name: hogehoge', 'エラーメッセージ');
+// 	}
+// });
 
-test('vorm関数 - 引数例外処理2', function() {
-	try {
-		vorm(document);
-	} catch (error) {
-		ok(error instanceof TypeError, 'エラーオブジェクトの型');
-		equal(error.message, 'A got element is not a Form element', 'エラーメッセージ');
-	}
-});
+// test('vorm関数 - 引数例外処理2', function() {
+// 	try {
+// 		vorm(document);
+// 	} catch (error) {
+// 		ok(error instanceof TypeError, 'エラーオブジェクトの型');
+// 		equal(error.message, 'A got element is not a Form element', 'エラーメッセージ');
+// 	}
+// });
 
-test('vorm関数 - フォーム要素取得1', function() {
-	var vormEl = vorm('test');
-	ok(vormEl.el.nodeName === 'FORM', 'フォーム要素取得成功');
-});
+// test('vorm関数 - フォーム要素取得1', function() {
+// 	var vormEl = vorm('test');
+// 	ok(vormEl.form.nodeName === 'FORM', 'フォーム要素取得成功');
+// });
 
-test('vorm関数 - フォーム要素取得2', function() {
-	var vormEl = vorm(document.forms[0]);
-	ok(vormEl.el.nodeName === 'FORM', 'フォーム要素取得成功');
-});
+// test('vorm関数 - フォーム要素取得2', function() {
+// 	var vormEl = vorm(document.forms[0]);
+// 	ok(vormEl.form.nodeName === 'FORM', 'フォーム要素取得成功');
+// });
+
+// test('vorm関数 - 入力取得2', function() {
+// 	var vormEl = vorm(document.forms[0]);
+// 	ok(vormEl.form.nodeName === 'FORM', 'フォーム要素取得成功');
+// });
 
 test('vorm関数 - 入力取得2', function() {
-	var vormEl = vorm(document.forms[0]);
-	ok(vormEl.el.nodeName === 'FORM', 'フォーム要素取得成功');
+	ok(true, 'フォーム要素取得成功');
+
+	var vormEl = vorm('test', {
+		"name": 'require hiragana',
+		"honorific-prefix": 'required katakana(saf, fasdaf, asdfa)',
+		"given-name": 'hiragana()',
+		"additional-name": '       qqq(ひらがな) asdfasdfa(safd , dfasdf )  sdfafdas()',
+		"family-name": 'werwre09324(- -)        ',
+		"honorific-suffix": '               mar(    それな。   だおれあ,    sdafsdf(    あーね、　　　そうかもね。        ,       )',
+		"nickname": 'asdfas(',
+		"organization-title": '',
+		"username": '',
+		"new-password": '',
+		"current-password": '',
+		"organization": '',
+		"street-address": '',
+		"address-line1": '',
+		"address-line2": '',
+		"address-line3": '',
+		"address-level4": '',
+		"address-level3": '',
+		"address-level2": '',
+		"address-level1": '',
+		"country": '',
+		"country-name": '',
+		"postal-code": '',
+		"cc-name": '',
+		"cc-given-name": '',
+		"cc-additional-name": '',
+		"cc-family-name": '',
+		"cc-number": '',
+		"cc-exp": '',
+		"cc-exp-month": '',
+		"cc-exp-year": '',
+		"cc-csc": '',
+		"cc-type": '',
+		"transaction-currency": '',
+		"transaction-amount": '',
+		"language": '',
+		"bday": '',
+		"bday-day": '',
+		"bday-month": '',
+		"bday-year": '',
+		"sex": '',
+		"url": '',
+		"photo": '',
+		"tel": '',
+		"tel-country-code": '',
+		"tel-national": '',
+		"tel-area-code": '',
+		"tel-local": '',
+		"tel-local-prefix": '',
+		"tel-local-suffix": '',
+		"tel-extension": '',
+		"email": '',
+		"impp": ''
+	});
+
+
+
 });
+
 
 </script>
 
