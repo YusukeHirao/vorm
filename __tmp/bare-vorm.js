@@ -8,6 +8,9 @@ var Vorm = (function () {
         }
     }
     Vorm.prototype._init = function (formNameOrFormNode, rulesOption) {
+        window.addEventListener('DOMContentLoaded', this._createVormObject.bind(this, formNameOrFormNode, rulesOption), false);
+    };
+    Vorm.prototype._createVormObject = function (formNameOrFormNode, rulesOption) {
         var formNode;
         if (typeof formNameOrFormNode === 'string') {
             formNode = document.querySelector('[name="' + formNameOrFormNode + '"]');
@@ -29,99 +32,13 @@ var Vorm = (function () {
     };
     return Vorm;
 })();
-var FieldList = (function () {
-    function FieldList(vorm, rulesOption) {
-        var fieldName;
-        var ruleQuery;
-        var formElem;
-        var field;
-        for (fieldName in rulesOption) {
-            if (rulesOption.hasOwnProperty(fieldName)) {
-                ruleQuery = rulesOption[fieldName];
-                formElem = vorm.form.querySelector('[name="' + fieldName + '"]');
-                if (formElem) {
-                    field = new Field(formElem, ruleQuery);
-                }
-                else {
-                    throw new Error('Invaid option. Not found element of [name="' + fieldName + '"].');
-                }
-            }
-        }
-    }
-    FieldList.prototype.ref = function (index) {
-        if (typeof index === 'string') {
-            return this._[this.__[index]];
-        }
-        else {
-            return this._[index];
-        }
-    };
-    return FieldList;
-})();
-var Field = (function () {
-    function Field(el, ruleQuery) {
-        var _this = this;
-        this.required = false;
-        this.el = el;
-        switch (el.nodeName) {
-            case 'INPUT': {
-                this.type = el.type;
-                break;
-            }
-            case 'SELECT': {
-                this.type = 'select';
-                break;
-            }
-            case 'TEXTAREA': {
-                this.type = 'textarea';
-                break;
-            }
-            default: {
-                throw new TypeError('');
-            }
-        }
-        this.rules = Util.queryRuleSet(ruleQuery);
-        el.addEventListener('blur', function (e) {
-            var field = e.target;
-            field.value = _this._convert(field.value);
-        });
-    }
-    Field.prototype._convert = function (value) {
-        var result;
-        _.each(this.rules, function (rule) {
-            if (rule && rule.name === 'convert') {
-                result = rule.convert(value);
-            }
-            else {
-                result = value;
-            }
-        });
-        return result;
-    };
-    return Field;
-})();
-var Required = (function () {
-    function Required() {
-        this.name = 'required';
-        this.method = 'normal';
+var Rule = (function () {
+    function Rule(methods) {
+        this.name = null;
         this.params = [];
-        this.priority = 1000;
+        this.priority = 10000;
         this.dependence = [];
-    }
-    Required.prototype.filter = function (value) {
-        return value !== '';
-    };
-    Required.prototype.toString = function () {
-        return this.name + ':' + this.method;
-    };
-    return Required;
-})();
-var Is = (function () {
-    function Is(methods, customFilter) {
-        this.name = 'is';
-        this.params = [];
-        this.priority = 100;
-        this.dependence = [];
+        // this.method = method;
         var decodeParam = new RegExp(Util.paramVariablePrefix.replace(/\$/g, '\\$') + '[0-9]+', 'ig');
         var methodInfo;
         var methodName;
@@ -130,7 +47,7 @@ var Is = (function () {
             methodInfo = methods[0].match(decodeParam);
             methodName = methods[0].replace(decodeParam, '');
             if (methodInfo && methodInfo[0]) {
-                param = methodInfo[0].replace(decodeParam, function (paramVariable) { return paramList[paramVariable]; });
+                param = methodInfo[0].replace(decodeParam, function (paramVariable) { return Util.paramList[paramVariable]; });
             }
         }
         var options = methodName.split('.');
@@ -140,15 +57,14 @@ var Is = (function () {
             option = options[0];
         }
         // console.log(methodName, option, param);
-        this._customFilter = customFilter;
+        this.method = methodName;
+        this.option = option;
+        this.params = [param];
     }
-    Is.prototype.filter = function (value) {
-        return this._customFilter(value);
-    };
-    Is.prototype.toString = function () {
+    Rule.prototype.toString = function () {
         return this.name + ':' + this.method;
     };
-    return Is;
+    return Rule;
 })();
 var Convert = (function () {
     function Convert(methods) {
@@ -165,7 +81,7 @@ var Convert = (function () {
             methodInfo = methods[0].match(decodeParam);
             methodName = methods[0].replace(decodeParam, '');
             if (methodInfo && methodInfo[0]) {
-                param = methodInfo[0].replace(decodeParam, function (paramVariable) { return paramList[paramVariable]; });
+                param = methodInfo[0].replace(decodeParam, function (paramVariable) { return Util.paramList[paramVariable]; });
             }
         }
         var options = methodName.split('.');
@@ -196,22 +112,85 @@ var Convert = (function () {
     };
     return Convert;
 })();
-var Write = (function () {
-    function Write(methods, customConvert) {
-        this.name = 'write';
-        this.params = [];
-        this.priority = 10000;
-        this.dependence = [];
-        // this.method = method;
-        this._customConvert = customConvert;
+var Field = (function () {
+    function Field(el, ruleQuery) {
+        this.required = false;
+        this.el = el;
+        switch (el.nodeName) {
+            case 'INPUT': {
+                this.type = el.type;
+                break;
+            }
+            case 'SELECT': {
+                this.type = 'select';
+                break;
+            }
+            case 'TEXTAREA': {
+                this.type = 'textarea';
+                break;
+            }
+            default: {
+                throw new TypeError('');
+            }
+        }
+        this.rules = Util.queryRuleSet(ruleQuery);
+        this.bindEvent();
     }
-    Write.prototype.convert = function (value) {
-        return this._customConvert(value);
+    Field.prototype.bindEvent = function () {
+        var _this = this;
+        this.el.addEventListener('blur', function (e) {
+            var field = e.target;
+            field.value = _this._convert(field.value);
+        });
     };
-    Write.prototype.toString = function () {
-        return this.name + ':' + this.method;
+    Field.prototype._convert = function (value) {
+        // 登録された順番にコンバート
+        // 遅延評価的なことはしない
+        var result = value;
+        _.each(this.rules, function (rule) {
+            if (rule && rule.name === 'convert') {
+                result = rule.convert(result);
+            }
+        });
+        return result;
     };
-    return Write;
+    return Field;
+})();
+var FieldList = (function () {
+    function FieldList(vorm, rulesOption) {
+        this._ = [];
+        this.__ = {};
+        var fieldName;
+        var ruleQuery;
+        var formElem;
+        var index;
+        var field;
+        for (fieldName in rulesOption) {
+            if (rulesOption.hasOwnProperty(fieldName)) {
+                ruleQuery = rulesOption[fieldName];
+                formElem = vorm.form.querySelector('[name="' + fieldName + '"]');
+                if (formElem) {
+                    field = new Field(formElem, ruleQuery);
+                }
+                else {
+                    throw new Error('Invaid option. Not found element of [name="' + fieldName + '"].');
+                }
+                // console.log(field);
+                index = this._.length;
+                this._[index] = field;
+                this.__[fieldName] = index;
+            }
+        }
+    }
+    FieldList.prototype.ref = function (index) {
+        if (typeof index === 'string') {
+            return this._[this.__[index]];
+        }
+        else {
+            return this._[index];
+        }
+    };
+    return FieldList;
 })();
 var Group = (function () {
     function Group(methods, customConvert) {
@@ -230,20 +209,56 @@ var Group = (function () {
     };
     return Group;
 })();
-var customRules = {
-    hiragana: {
-        convert: function (value) {
-            return jaco.katakanize(value);
-        },
-        is: function (value) {
-            return new jaco.Jaco(value).isOnlyKatakana();
+var Is = (function () {
+    function Is(methods, customFilter) {
+        this.name = 'is';
+        this.params = [];
+        this.priority = 100;
+        this.dependence = [];
+        var decodeParam = new RegExp(Util.paramVariablePrefix.replace(/\$/g, '\\$') + '[0-9]+', 'ig');
+        var methodInfo;
+        var methodName;
+        var param;
+        if (methods && methods[0]) {
+            methodInfo = methods[0].match(decodeParam);
+            methodName = methods[0].replace(decodeParam, '');
+            if (methodInfo && methodInfo[0]) {
+                param = methodInfo[0].replace(decodeParam, function (paramVariable) { return Util.paramList[paramVariable]; });
+            }
         }
+        var options = methodName.split('.');
+        var option;
+        if (options && options.length) {
+            methodName = options.shift();
+            option = options[0];
+        }
+        // console.log(methodName, option, param);
+        this._customFilter = customFilter;
     }
-};
-var quotedStringList = {};
-var quotedStringVariableCounter = 0;
-var paramList = {};
-var paramVariableCounter = 0;
+    Is.prototype.filter = function (value) {
+        return this._customFilter(value);
+    };
+    Is.prototype.toString = function () {
+        return this.name + ':' + this.method;
+    };
+    return Is;
+})();
+var Required = (function () {
+    function Required() {
+        this.name = 'required';
+        this.method = 'normal';
+        this.params = [];
+        this.priority = 1000;
+        this.dependence = [];
+    }
+    Required.prototype.filter = function (value) {
+        return value !== '';
+    };
+    Required.prototype.toString = function () {
+        return this.name + ':' + this.method;
+    };
+    return Required;
+})();
 var Util = (function () {
     function Util() {
     }
@@ -251,15 +266,15 @@ var Util = (function () {
         //return ruleQuery.match(/[a-z][a-z0-9]*(?:(?::|\.)[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)?(?:\((?:.+(?:,\s*.+)*)?\))?)?/ig) || [];
         var result = [];
         var quoteEscapedRuleQuery = ruleQuery.replace(/(?:"[^"]*")|('[^']*')/g, function (quotedString) {
-            var quotedStringVariable = Util.quotedStringVariablePrefix + quotedStringVariableCounter;
-            quotedStringList[quotedStringVariable] = quotedString;
-            quotedStringVariableCounter++;
+            var quotedStringVariable = Util.quotedStringVariablePrefix + Util.quotedStringVariableCounter;
+            Util.quotedStringList[quotedStringVariable] = quotedString;
+            Util.quotedStringVariableCounter++;
             return quotedStringVariable;
         });
         var paramEscapedRuleQuery = ruleQuery.replace(/\([^\(]*\)/g, function (param) {
-            var paramVariable = Util.paramVariablePrefix + paramVariableCounter;
-            paramList[paramVariable] = param;
-            paramVariableCounter++;
+            var paramVariable = Util.paramVariablePrefix + Util.paramVariableCounter;
+            Util.paramList[paramVariable] = param;
+            Util.paramVariableCounter++;
             return paramVariable;
         });
         var ruleQueries = paramEscapedRuleQuery.split(/\s+/g);
@@ -330,9 +345,56 @@ var Util = (function () {
     };
     Util.quotedStringVariablePrefix = '$______';
     Util.paramVariablePrefix = '$$______';
+    Util.quotedStringList = {};
+    Util.quotedStringVariableCounter = 0;
+    Util.paramList = {};
+    Util.paramVariableCounter = 0;
     return Util;
 })();
+var Write = (function () {
+    function Write(methods, customConvert) {
+        this.name = 'write';
+        this.params = [];
+        this.priority = 10000;
+        this.dependence = [];
+        // this.method = method;
+        this._customConvert = customConvert;
+    }
+    Write.prototype.convert = function (value) {
+        return this._customConvert(value);
+    };
+    Write.prototype.toString = function () {
+        return this.name + ':' + this.method;
+    };
+    return Write;
+})();
+var customRules;
+(function (customRules) {
+    customRules.hiragana = {
+        convert: function (value) {
+            return jaco.hiraganize(value);
+        },
+        is: function (value) {
+            return new jaco.Jaco(value).isOnlyHiragana();
+        }
+    };
+})(customRules || (customRules = {}));
 /// <reference path="../typings/bundle.d.ts" />
 /// <reference path="../bower_components/jaco/lib/jaco.d.ts" />
+/// <reference path="types.ts" />
+/// <reference path="IConvert.ts" />
+/// <reference path="IFilter.ts" />
+/// <reference path="IRule.ts" />
+/// <reference path="IRulesOption.ts" />
 /// <reference path="vorm.ts" />
-/// <reference path="vorm.Form.ts" />
+/// <reference path="Rule.ts" />
+/// <reference path="Convert.ts" />
+/// <reference path="Field.ts" />
+/// <reference path="FieldList.ts" />
+/// <reference path="Group.ts" />
+/// <reference path="Is.ts" />
+/// <reference path="Required.ts" />
+/// <reference path="Util.ts" />
+/// <reference path="Write.ts" />
+/// <reference path="customRules/ICustomRule.ts" />
+/// <reference path="customRules/hiragana.ts" />
