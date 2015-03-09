@@ -1,3 +1,7 @@
 interface IConvert {
-	(value: string): string;
+	(
+		value: string,
+		options: { [optionName: string]: boolean },
+		params: string[]
+	): string;
 }

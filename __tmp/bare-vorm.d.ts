@@ -2,10 +2,14 @@
 /// <reference path="../bower_components/jaco/lib/jaco.d.ts" />
 declare type HTMLFormItemElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 interface IConvert {
-    (value: string): string;
+    (value: string, options: {
+        [optionName: string]: boolean;
+    }, params: string[]): string;
 }
 interface IFilter {
-    (value: string): boolean;
+    (value: string, options: {
+        [optionName: string]: boolean;
+    }, params: string[]): boolean;
 }
 interface IRule {
     name: string;
@@ -15,8 +19,12 @@ interface IRule {
     priority: number;
     dependence: string[];
     when: any;
-    filter?: IFilter;
-    convert?: IConvert;
+    filter?: {
+        (value: string): boolean;
+    };
+    convert?: {
+        (value: string): string;
+    };
 }
 interface IRulesOption {
     [fieldName: string]: string;
@@ -41,12 +49,7 @@ declare class Rule implements IRule {
 }
 declare class Convert extends Rule {
     name: string;
-    method: string;
-    option: string;
-    params: string[];
     priority: number;
-    dependence: string[];
-    when: any;
     private _customConvert;
     constructor(methods: string[]);
     convert(value: string): string;
@@ -59,6 +62,7 @@ declare class Field {
     constructor(el: HTMLFormItemElement, ruleQuery: string);
     bindEvent(): void;
     private _convert(value);
+    private _is(value);
 }
 declare class FieldList {
     private _;
@@ -74,23 +78,14 @@ declare class Group implements IRule {
     priority: number;
     dependence: string[];
     when: any;
-    private _customConvert;
-    constructor(methods: string[], customConvert?: IConvert);
-    convert(value: string): string;
-    toString(): string;
+    constructor(methods: string[]);
 }
-declare class Is implements IRule {
+declare class Is extends Rule {
     name: string;
-    method: string;
-    option: string;
-    params: string[];
     priority: number;
-    dependence: string[];
-    when: any;
     private _customFilter;
-    constructor(methods: string[], customFilter?: IFilter);
+    constructor(methods: string[]);
     filter(value: string): boolean;
-    toString(): string;
 }
 declare class Required implements IRule {
     name: string;
@@ -100,8 +95,6 @@ declare class Required implements IRule {
     priority: number;
     dependence: string[];
     when: any;
-    filter(value: string): boolean;
-    toString(): string;
 }
 declare class Util {
     static quotedStringVariablePrefix: string;
@@ -117,6 +110,8 @@ declare class Util {
     static queryRuleSet(ruleQuery: string): IRule[];
     static nodeStringify(node: Node): string;
     static getFormName(): string;
+    static parseComparison(condition: string, defaultLeft: string): boolean;
+    static zerofill(value: string, digits: number): string;
 }
 declare class Write implements IRule {
     name: string;
@@ -126,18 +121,43 @@ declare class Write implements IRule {
     priority: number;
     dependence: string[];
     when: any;
-    private _customConvert;
-    constructor(methods: string[], customConvert?: IConvert);
-    convert(value: string): string;
-    toString(): string;
+    constructor(methods: string[]);
 }
 declare module customRules {
     interface ICustomRule {
-        convert: {
-            (value: string): string;
+        convert?: {
+            (value: string, options: {
+                [optionName: string]: boolean;
+            }, params: string[]): string;
+        };
+        is?: {
+            (value: string, options: {
+                [optionName: string]: boolean;
+            }, params: string[]): boolean;
         };
     }
 }
 declare module customRules {
     var hiragana: ICustomRule;
+}
+declare module customRules {
+    var katakana: ICustomRule;
+}
+declare module customRules {
+    var integer: ICustomRule;
+}
+declare module customRules {
+    var comparison: ICustomRule;
+}
+declare module customRules {
+    var beautify: ICustomRule;
+}
+declare module customRules {
+    var email: ICustomRule;
+}
+declare module customRules {
+    var length: ICustomRule;
+}
+declare module customRules {
+    var maxlength: ICustomRule;
 }

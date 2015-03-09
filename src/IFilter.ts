@@ -1,3 +1,7 @@
 interface IFilter {
-	(value: string): boolean;
+	(
+		value: string,
+		options: { [optionName: string]: boolean },
+		params: string[]
+	): boolean;
 }

@@ -102,4 +102,48 @@ class Util {
 		return result.join('\n');
 	}
 
+	static parseComparison (condition: string, defaultLeft: string): boolean {
+		var operators: string[] = condition.match(/(?:<|>)?=?/i);
+		var operator: string;
+		var statement: string[]
+		var left: string;
+		var right: string;
+		var numericLeft: number;
+		var numericRight: number;
+
+		if (operators || operators.length) {
+
+			operator = operators[0];
+
+			statement = condition.split(operator);
+
+			left = statement[0] || defaultLeft;
+			right = statement[1];
+
+			if (operator === '=') {
+				return left === right;
+			}
+
+			numericLeft = new jaco.Jaco(left).toNumber();
+			numericRight = new jaco.Jaco(right).toNumber();
+
+			switch (operator) {
+				case '<':  return numericLeft < numericRight;
+				case '>':  return numericLeft > numericRight;
+				case '<=': return numericLeft <= numericRight;
+				case '>=': return numericLeft >= numericRight;
+			}
+
+		} else {
+			// TODO: Error Message
+			throw new Error();
+		}
+
+		return true;
+	}
+
+	static zerofill (value: string, digits: number): string {
+		return (new Array(digits).join('0') + value).slice(digits * -1);
+	}
+
 }

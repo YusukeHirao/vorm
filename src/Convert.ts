@@ -1,12 +1,7 @@
 class Convert extends Rule {
 
 	public name: string = 'convert';
-	public method: string;
-	public option: string;
-	public params: string[] = [];
 	public priority: number = 10000;
-	public dependence: string[] = [];
-	public when: any;
 
 	private _customConvert: IConvert;
 
@@ -15,18 +10,18 @@ class Convert extends Rule {
 		super(methods);
 
 		var cRule = customRules[this.method];
-
 		if (cRule && cRule.convert) {
-
 			this._customConvert = cRule.convert;
-
 		}
 
+		console.log('%c' + this.name, 'color: orange; font-weight: bold', this.method, this.option, this.params);
 	}
 
 	public convert (value: string): string {
+		var options: { [optionName: string]: boolean } = {};
+		options[this.option] = true;
 		if (this._customConvert) {
-			return this._customConvert(value);
+			return this._customConvert(value, options, this.params);
 		} else {
 			return value;
 		}

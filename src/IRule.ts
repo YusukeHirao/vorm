@@ -6,6 +6,6 @@ interface IRule {
 	priority: number;
 	dependence: string[];
 	when: any;
-	filter?: IFilter;
-	convert?: IConvert;
+	filter?: { (value: string): boolean };
+	convert?: { (value: string): string };
 }

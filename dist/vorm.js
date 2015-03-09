@@ -1,6 +1,6 @@
 /**
  * vorm - v0.1.0
- * update: 2015-03-09
+ * update: 2015-03-10
  * Author: YusukeHirao []
  * Github: https://github.com/YusukeHirao/vorm.git
  * License: Licensed under the MIT License
@@ -53,18 +53,17 @@ var Rule = (function () {
     function Rule(methods) {
         this.name = null;
         this.params = [];
-        this.priority = 10000;
         this.dependence = [];
-        // this.method = method;
         var decodeParam = new RegExp(Util.paramVariablePrefix.replace(/\$/g, '\\$') + '[0-9]+', 'ig');
         var methodInfo;
         var methodName;
-        var param;
+        var params;
         if (methods && methods[0]) {
             methodInfo = methods[0].match(decodeParam);
             methodName = methods[0].replace(decodeParam, '');
             if (methodInfo && methodInfo[0]) {
-                param = methodInfo[0].replace(decodeParam, function (paramVariable) { return Util.paramList[paramVariable]; });
+                params = methodInfo[0].replace(decodeParam, function (paramVariable) { return Util.paramList[paramVariable]; });
+                params = params.slice(1, -1);
             }
         }
         var options = methodName.split('.');
@@ -73,10 +72,11 @@ var Rule = (function () {
             methodName = options.shift();
             option = options[0];
         }
-        // console.log(methodName, option, param);
         this.method = methodName;
         this.option = option;
-        this.params = [param];
+        if (params) {
+            this.params = params.split(/,/).map(function (param) { return param.trim(); });
+        }
     }
     Rule.prototype.toString = function () {
         return this.name + ':' + this.method;
@@ -94,17 +94,18 @@ var Convert = (function (_super) {
     function Convert(methods) {
         _super.call(this, methods);
         this.name = 'convert';
-        this.params = [];
         this.priority = 10000;
-        this.dependence = [];
         var cRule = customRules[this.method];
         if (cRule && cRule.convert) {
             this._customConvert = cRule.convert;
         }
+        console.log('%c' + this.name, 'color: orange; font-weight: bold', this.method, this.option, this.params);
     }
     Convert.prototype.convert = function (value) {
+        var options = {};
+        options[this.option] = true;
         if (this._customConvert) {
-            return this._customConvert(value);
+            return this._customConvert(value, options, this.params);
         }
         else {
             return value;
@@ -141,6 +142,12 @@ var Field = (function () {
         this.el.addEventListener('blur', function (e) {
             var field = e.target;
             field.value = _this._convert(field.value);
+            if (_this._is(field.value)) {
+                _this.el.classList.remove('invalid');
+            }
+            else {
+                _this.el.classList.add('invalid');
+            }
         });
     };
     Field.prototype._convert = function (value) {
@@ -150,6 +157,20 @@ var Field = (function () {
         _.each(this.rules, function (rule) {
             if (rule && rule.name === 'convert') {
                 result = rule.convert(result);
+            }
+        });
+        return result;
+    };
+    Field.prototype._is = function (value) {
+        // 登録された順番にコンバート
+        // 遅延評価的なことはしない
+        var result = true;
+        _.each(this.rules, function (rule) {
+            if (rule && rule.name === 'is') {
+                console.log(rule.name, rule.method);
+                if (!rule.filter(value)) {
+                    result = false;
+                }
             }
         });
         return result;
@@ -193,56 +214,38 @@ var FieldList = (function () {
     return FieldList;
 })();
 var Group = (function () {
-    function Group(methods, customConvert) {
+    function Group(methods) {
         this.name = 'group';
         this.params = [];
         this.priority = 10000;
         this.dependence = [];
-        // this.method = method;
-        this._customConvert = customConvert;
     }
-    Group.prototype.convert = function (value) {
-        return this._customConvert(value);
-    };
-    Group.prototype.toString = function () {
-        return this.name + ':' + this.method;
-    };
     return Group;
 })();
-var Is = (function () {
-    function Is(methods, customFilter) {
+var Is = (function (_super) {
+    __extends(Is, _super);
+    function Is(methods) {
+        _super.call(this, methods);
         this.name = 'is';
-        this.params = [];
         this.priority = 100;
-        this.dependence = [];
-        var decodeParam = new RegExp(Util.paramVariablePrefix.replace(/\$/g, '\\$') + '[0-9]+', 'ig');
-        var methodInfo;
-        var methodName;
-        var param;
-        if (methods && methods[0]) {
-            methodInfo = methods[0].match(decodeParam);
-            methodName = methods[0].replace(decodeParam, '');
-            if (methodInfo && methodInfo[0]) {
-                param = methodInfo[0].replace(decodeParam, function (paramVariable) { return Util.paramList[paramVariable]; });
-            }
+        var cRule = customRules[this.method];
+        if (cRule && cRule.is) {
+            this._customFilter = cRule.is;
         }
-        var options = methodName.split('.');
-        var option;
-        if (options && options.length) {
-            methodName = options.shift();
-            option = options[0];
-        }
-        // console.log(methodName, option, param);
-        this._customFilter = customFilter;
+        console.log('%c' + this.name, 'color: green; font-weight: bold', this.method, this.option, this.params);
     }
     Is.prototype.filter = function (value) {
-        return this._customFilter(value);
-    };
-    Is.prototype.toString = function () {
-        return this.name + ':' + this.method;
+        var options = {};
+        options[this.option] = true;
+        if (this._customFilter) {
+            return this._customFilter(value, options, this.params);
+        }
+        else {
+            return true;
+        }
     };
     return Is;
-})();
+})(Rule);
 var Required = (function () {
     function Required() {
         this.name = 'required';
@@ -251,12 +254,6 @@ var Required = (function () {
         this.priority = 1000;
         this.dependence = [];
     }
-    Required.prototype.filter = function (value) {
-        return value !== '';
-    };
-    Required.prototype.toString = function () {
-        return this.name + ':' + this.method;
-    };
     return Required;
 })();
 var Util = (function () {
@@ -343,6 +340,39 @@ var Util = (function () {
         }
         return result.join('\n');
     };
+    Util.parseComparison = function (condition, defaultLeft) {
+        var operators = condition.match(/(?:<|>)?=?/i);
+        var operator;
+        var statement;
+        var left;
+        var right;
+        var numericLeft;
+        var numericRight;
+        if (operators || operators.length) {
+            operator = operators[0];
+            statement = condition.split(operator);
+            left = statement[0] || defaultLeft;
+            right = statement[1];
+            if (operator === '=') {
+                return left === right;
+            }
+            numericLeft = new jaco.Jaco(left).toNumber();
+            numericRight = new jaco.Jaco(right).toNumber();
+            switch (operator) {
+                case '<': return numericLeft < numericRight;
+                case '>': return numericLeft > numericRight;
+                case '<=': return numericLeft <= numericRight;
+                case '>=': return numericLeft >= numericRight;
+            }
+        }
+        else {
+            throw new Error();
+        }
+        return true;
+    };
+    Util.zerofill = function (value, digits) {
+        return (new Array(digits).join('0') + value).slice(digits * -1);
+    };
     Util.quotedStringVariablePrefix = '$______';
     Util.paramVariablePrefix = '$$______';
     Util.quotedStringList = {};
@@ -352,30 +382,130 @@ var Util = (function () {
     return Util;
 })();
 var Write = (function () {
-    function Write(methods, customConvert) {
+    function Write(methods) {
         this.name = 'write';
         this.params = [];
         this.priority = 10000;
         this.dependence = [];
         // this.method = method;
-        this._customConvert = customConvert;
     }
-    Write.prototype.convert = function (value) {
-        return this._customConvert(value);
-    };
-    Write.prototype.toString = function () {
-        return this.name + ':' + this.method;
-    };
     return Write;
 })();
 var customRules;
 (function (customRules) {
     customRules.hiragana = {
-        convert: function (value) {
+        convert: function (value, options, params) {
             return jaco.hiraganize(value);
         },
-        is: function (value) {
+        is: function (value, options, params) {
             return new jaco.Jaco(value).isOnlyHiragana();
+        }
+    };
+})(customRules || (customRules = {}));
+var customRules;
+(function (customRules) {
+    customRules.katakana = {
+        convert: function (value, options, params) {
+            return jaco.katakanize(value);
+        },
+        is: function (value, options, params) {
+            return new jaco.Jaco(value).isOnlyKatakana();
+        }
+    };
+})(customRules || (customRules = {}));
+var customRules;
+(function (customRules) {
+    customRules.integer = {
+        convert: function (value, options, params) {
+            if (options.zerofill) {
+                return Util.zerofill(new jaco.Jaco(value).toNumeric(false, false).toString(), +params[0]);
+            }
+            else {
+                return new jaco.Jaco(value).toNumeric(options.unsigned, false).toString();
+            }
+        },
+        is: function (value, options, params) {
+            return new jaco.Jaco(value).isNumeric(options.unsigned || options.zerofill, false);
+        }
+    };
+})(customRules || (customRules = {}));
+var customRules;
+(function (customRules) {
+    customRules.comparison = {
+        is: function (value, options, params) {
+            return Util.parseComparison(params[0], value);
+        }
+    };
+})(customRules || (customRules = {}));
+var customRules;
+(function (customRules) {
+    customRules.beautify = {
+        convert: function (value, options, params) {
+            return new jaco.Jaco(value).toNarrow().toWideKatakana().replaceMap({ '~': '〜', '\\(': '（', '\\)': '）' }).toString();
+        }
+    };
+})(customRules || (customRules = {}));
+var customRules;
+(function (customRules) {
+    var patternMail = /^([0-9a-z\.!\#$%&'*+\-\/=?^_`{|}~\(\)<>\[\]:;@,"\\\u0020]+)@((?:[0-9a-z][0-9a-z-]*\.)+[0-9a-z]{2,6}|\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\])$/i;
+    var patternQuoted = /^".+"$/g;
+    var patternQuoteBeforeAndAfter = /^"|"$/g;
+    var patternEscapedBadChars = /\\"|\\\\/g;
+    var patternBadChars = /"|\\/;
+    var patternBadDot = /^\.|\.{2,}|\.$/i;
+    var patternlocalNonQuoteds = /^[0-9a-z\.!#$%&'*+\-\/=?^_`{|}~]+$/i;
+    customRules.email = {
+        is: function (value, options, params) {
+            var mailMatch;
+            var local;
+            var domain;
+            var escaped;
+            if (value.length > 256) {
+                return false;
+            }
+            mailMatch = value.match(patternMail);
+            if (!mailMatch) {
+                return false;
+            }
+            local = mailMatch[1];
+            domain = mailMatch[2];
+            if (domain.length > 255) {
+                return false;
+            }
+            if (local.length > 64) {
+                return false;
+            }
+            if (patternQuoted.test(local)) {
+                local = local.replace(patternQuoteBeforeAndAfter, '');
+                escaped = local.replace(patternEscapedBadChars, '');
+                if (patternBadChars.test(escaped)) {
+                    return false;
+                }
+                return true;
+            }
+            if (patternBadDot.test(local)) {
+                return false;
+            }
+            if (!patternlocalNonQuoteds.test(local)) {
+                return false;
+            }
+            return true;
+        }
+    };
+})(customRules || (customRules = {}));
+var customRules;
+(function (customRules) {
+    customRules.length = {
+        is: function (value, options, params) {
+            return new jaco.Jaco(value).size() === new jaco.Jaco(params[0]).toNumber();
+        }
+    };
+})(customRules || (customRules = {}));
+var customRules;
+(function (customRules) {
+    customRules.maxlength = {
+        is: function (value, options, params) {
+            return new jaco.Jaco(value).size() <= new jaco.Jaco(params[0]).toNumber();
         }
     };
 })(customRules || (customRules = {}));
@@ -398,6 +528,13 @@ var customRules;
 /// <reference path="Write.ts" />
 /// <reference path="customRules/ICustomRule.ts" />
 /// <reference path="customRules/hiragana.ts" />
+/// <reference path="customRules/katakana.ts" />
+/// <reference path="customRules/integer.ts" />
+/// <reference path="customRules/comparison.ts" />
+/// <reference path="customRules/beautify.ts" />
+/// <reference path="customRules/email.ts" />
+/// <reference path="customRules/length.ts" />
+/// <reference path="customRules/maxlength.ts" />
 
 
 	Vorm.util = Util;

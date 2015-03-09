@@ -8,12 +8,4 @@ class Required implements IRule {
 	public dependence: string[] = [];
 	public when: any;
 
-	public filter (value: string): boolean {
-		return value !== '';
-	}
-
-	public toString (): string {
-		return this.name + ':' + this.method;
-	}
-
 }
