@@ -83,35 +83,21 @@ var Rule = (function () {
     };
     return Rule;
 })();
-var Convert = (function () {
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Convert = (function (_super) {
+    __extends(Convert, _super);
     function Convert(methods) {
+        _super.call(this, methods);
         this.name = 'convert';
         this.params = [];
         this.priority = 10000;
         this.dependence = [];
-        // this.method = method;
-        var decodeParam = new RegExp(Util.paramVariablePrefix.replace(/\$/g, '\\$') + '[0-9]+', 'ig');
-        var methodInfo;
-        var methodName;
-        var param;
-        if (methods && methods[0]) {
-            methodInfo = methods[0].match(decodeParam);
-            methodName = methods[0].replace(decodeParam, '');
-            if (methodInfo && methodInfo[0]) {
-                param = methodInfo[0].replace(decodeParam, function (paramVariable) { return Util.paramList[paramVariable]; });
-            }
-        }
-        var options = methodName.split('.');
-        var option;
-        if (options && options.length) {
-            methodName = options.shift();
-            option = options[0];
-        }
-        // console.log(methodName, option, param);
-        this.method = methodName;
-        this.option = option;
-        this.params = [param];
-        var cRule = customRules[methodName];
+        var cRule = customRules[this.method];
         if (cRule && cRule.convert) {
             this._customConvert = cRule.convert;
         }
@@ -124,11 +110,8 @@ var Convert = (function () {
             return value;
         }
     };
-    Convert.prototype.toString = function () {
-        return this.name + ':' + this.method;
-    };
     return Convert;
-})();
+})(Rule);
 var Field = (function () {
     function Field(el, ruleQuery) {
         this.required = false;

@@ -36,11 +36,10 @@ declare class Rule implements IRule {
     priority: number;
     dependence: string[];
     when: any;
-    private _customConvert;
     constructor(methods: string[]);
     toString(): string;
 }
-declare class Convert implements IRule {
+declare class Convert extends Rule {
     name: string;
     method: string;
     option: string;
@@ -51,7 +50,6 @@ declare class Convert implements IRule {
     private _customConvert;
     constructor(methods: string[]);
     convert(value: string): string;
-    toString(): string;
 }
 declare class Field {
     el: HTMLFormItemElement;

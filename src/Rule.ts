@@ -8,8 +8,6 @@ class Rule implements IRule {
 	public dependence: string[] = [];
 	public when: any;
 
-	private _customConvert: IConvert;
-
 	constructor (methods: string[]) {
 		// this.method = method;
 		var decodeParam: RegExp = new RegExp(Util.paramVariablePrefix.replace(/\$/g, '\\$') + '[0-9]+', 'ig');
