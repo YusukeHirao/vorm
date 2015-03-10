@@ -32,7 +32,12 @@ interface IRulesOption {
 declare class Vorm {
     form: HTMLFormElement;
     fields: FieldList;
+    private _isReadied;
+    private _readyHandler;
     constructor(formNameOrFormNode: string | HTMLElement, rulesOption: IRulesOption);
+    onReady(readyHandler: {
+        (): any;
+    }): void;
     private _init(formNameOrFormNode, rulesOption);
     private _createVormObject(formNameOrFormNode, rulesOption);
 }
@@ -55,11 +60,13 @@ declare class Convert extends Rule {
     convert(value: string): string;
 }
 declare class Field {
+    name: string;
     el: HTMLFormItemElement;
     type: string;
     required: boolean;
     rules: IRule[];
     constructor(el: HTMLFormItemElement, ruleQuery: string);
+    update(): void;
     bindEvent(): void;
     private _convert(value);
     private _is(value);

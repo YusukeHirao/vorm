@@ -24,10 +24,23 @@ var Vorm = (function () {
             return new Vorm(formNameOrFormNode, rulesOption);
         }
     }
+    Vorm.prototype.onReady = function (readyHandler) {
+        this._readyHandler = readyHandler;
+        if (this._isReadied) {
+            this._readyHandler.call(this);
+        }
+    };
     Vorm.prototype._init = function (formNameOrFormNode, rulesOption) {
-        window.addEventListener('DOMContentLoaded', this._createVormObject.bind(this, formNameOrFormNode, rulesOption), false);
+        this._isReadied = window.document.readyState === 'complete';
+        if (this._isReadied) {
+            this._createVormObject(formNameOrFormNode, rulesOption);
+        }
+        else {
+            window.addEventListener('DOMContentLoaded', this._createVormObject.bind(this, formNameOrFormNode, rulesOption), false);
+        }
     };
     Vorm.prototype._createVormObject = function (formNameOrFormNode, rulesOption) {
+        this._isReadied = true;
         var formNode;
         if (typeof formNameOrFormNode === 'string') {
             formNode = document.querySelector('[name="' + formNameOrFormNode + '"]');
@@ -46,6 +59,9 @@ var Vorm = (function () {
         }
         this.form = formNode;
         this.fields = new FieldList(this, rulesOption);
+        if (this._readyHandler) {
+            this._readyHandler.call(this);
+        }
     };
     return Vorm;
 })();
@@ -117,6 +133,7 @@ var Field = (function () {
     function Field(el, ruleQuery) {
         this.required = false;
         this.el = el;
+        this.name = el.name;
         switch (el.nodeName) {
             case 'INPUT': {
                 this.type = el.type;
@@ -136,12 +153,34 @@ var Field = (function () {
         }
         this.rules = Util.queryRuleSet(ruleQuery);
         this.bindEvent();
+        this.update();
     }
+    Field.prototype.update = function () {
+        var _this = this;
+        _.each(this.rules, function (rule) {
+            if (rule) {
+                switch (rule.name) {
+                    case 'required': {
+                        if (rule.when) {
+                        }
+                        else {
+                            _this.required = true;
+                        }
+                        break;
+                    }
+                    default: {
+                    }
+                }
+            }
+        });
+    };
     Field.prototype.bindEvent = function () {
         var _this = this;
         this.el.addEventListener('blur', function (e) {
+            // converting
             var field = e.target;
             field.value = _this._convert(field.value);
+            // filter checking
             if (_this._is(field.value)) {
                 _this.el.classList.remove('invalid');
             }

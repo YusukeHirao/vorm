@@ -5,7 +5,6 @@
 <meta charset="utf-8">
 <title>basic test - vorm</title>
 <link rel="stylesheet" href="../node_modules/qunitjs/qunit/qunit.css">
-
 </head>
 <body>
 
@@ -118,65 +117,232 @@
 // 	ok(vormEl.form.nodeName === 'FORM', 'フォーム要素取得成功');
 // });
 
-test('vorm関数 - 入力取得2', function() {
-	ok(true, 'フォーム要素取得成功');
+test('vorm', function() {
 
-	var vormEl = vorm('test', {
-		"name": 'require hiragana',
-		"honorific-prefix": 'required katakana(saf, fasdaf, asdfa)',
-		"given-name": 'hiragana()',
-		"additional-name": '       qqq(ひらがな) asdfasdfa(safd , dfasdf )  sdfafdas()',
-		"family-name": 'werwre09324(- -)        ',
-		"honorific-suffix": '               mar(    それな。   だおれあ,    sdafsdf(    あーね、　　　そうかもね。        ,       )',
-		"nickname": 'asdfas(',
-		"organization-title": '',
-		"username": '',
-		"new-password": '',
-		"current-password": '',
-		"organization": '',
-		"street-address": '',
-		"address-line1": '',
-		"address-line2": '',
-		"address-line3": '',
-		"address-level4": '',
-		"address-level3": '',
-		"address-level2": '',
-		"address-level1": '',
-		"country": '',
-		"country-name": '',
-		"postal-code": '',
-		"cc-name": '',
-		"cc-given-name": '',
-		"cc-additional-name": '',
-		"cc-family-name": '',
-		"cc-number": '',
-		"cc-exp": '',
-		"cc-exp-month": '',
-		"cc-exp-year": '',
-		"cc-csc": '',
-		"cc-type": '',
-		"transaction-currency": '',
-		"transaction-amount": '',
-		"language": '',
-		"bday": '',
-		"bday-day": '',
-		"bday-month": '',
-		"bday-year": '',
-		"sex": '',
-		"url": '',
-		"photo": '',
-		"tel": '',
-		"tel-country-code": '',
-		"tel-national": '',
-		"tel-area-code": '',
-		"tel-local": '',
-		"tel-local-prefix": '',
-		"tel-local-suffix": '',
-		"tel-extension": '',
-		"email": '',
-		"impp": ''
+	var v = vorm('test', {
+		'name': 'require hiragana',
+		'honorific-prefix': 'required katakana(saf, fasdaf, asdfa)',
+		'given-name': 'hiragana()',
+		'additional-name': '       qqq(ひらがな) asdfasdfa(safd , dfasdf )  sdfafdas()',
+		'family-name': 'werwre09324(- -)        ',
+		'honorific-suffix': '               mar(    それな。   だおれあ,    sdafsdf(    あーね、　　　そうかもね。        ,       )',
+		'nickname': 'asdfas(',
+		'organization-title': '',
+		'username': '',
+		'new-password': '',
+		'current-password': '',
+		'organization': '',
+		'street-address': '',
+		'address-line1': '',
+		'address-line2': '',
+		'address-line3': '',
+		'address-level4': '',
+		'address-level3': '',
+		'address-level2': '',
+		'address-level1': '',
+		'country': '',
+		'country-name': '',
+		'postal-code': '',
+		'cc-name': '',
+		'cc-given-name': '',
+		'cc-additional-name': '',
+		'cc-family-name': '',
+		'cc-number': '',
+		'cc-exp': '',
+		'cc-exp-month': '',
+		'cc-exp-year': '',
+		'cc-csc': '',
+		'cc-type': '',
+		'transaction-currency': '',
+		'transaction-amount': '',
+		'language': '',
+		'bday': '',
+		'bday-day': '',
+		'bday-month': '',
+		'bday-year': '',
+		'sex': '',
+		'url': '',
+		'photo': '',
+		'tel': '',
+		'tel-country-code': '',
+		'tel-national': '',
+		'tel-area-code': '',
+		'tel-local': '',
+		'tel-local-prefix': '',
+		'tel-local-suffix': '',
+		'tel-extension': '',
+		'email': '',
+		'impp': ''
 	});
 
+	v.onReady(function() {
+
+		console.log(v);
+		var f = {
+			'name': this.fields.ref('name'),
+			'honorific-prefix': this.fields.ref('honorific-prefix'),
+			'given-name': this.fields.ref('given-name'),
+			'additional-name': this.fields.ref('additional-name'),
+			'family-name': this.fields.ref('family-name'),
+			'honorific-suffix': this.fields.ref('honorific-suffix'),
+			'nickname': this.fields.ref('nickname'),
+			'organization-title': this.fields.ref('organization-title'),
+			'username': this.fields.ref('username'),
+			'new-password': this.fields.ref('new-password'),
+			'current-password': this.fields.ref('current-password'),
+			'organization': this.fields.ref('organization'),
+			'street-address': this.fields.ref('street-address'),
+			'address-line1': this.fields.ref('address-line1'),
+			'address-line2': this.fields.ref('address-line2'),
+			'address-line3': this.fields.ref('address-line3'),
+			'address-level4': this.fields.ref('address-level4'),
+			'address-level3': this.fields.ref('address-level3'),
+			'address-level2': this.fields.ref('address-level2'),
+			'address-level1': this.fields.ref('address-level1'),
+			'country': this.fields.ref('country'),
+			'country-name': this.fields.ref('country-name'),
+			'postal-code': this.fields.ref('postal-code'),
+			'cc-name': this.fields.ref('cc-name'),
+			'cc-given-name': this.fields.ref('cc-given-name'),
+			'cc-additional-name': this.fields.ref('cc-additional-name'),
+			'cc-family-name': this.fields.ref('cc-family-name'),
+			'cc-number': this.fields.ref('cc-number'),
+			'cc-exp': this.fields.ref('cc-exp'),
+			'cc-exp-month': this.fields.ref('cc-exp-month'),
+			'cc-exp-year': this.fields.ref('cc-exp-year'),
+			'cc-csc': this.fields.ref('cc-csc'),
+			'cc-type': this.fields.ref('cc-type'),
+			'transaction-currency': this.fields.ref('transaction-currency'),
+			'transaction-amount': this.fields.ref('transaction-amount'),
+			'language': this.fields.ref('language'),
+			'bday': this.fields.ref('bday'),
+			'bday-day': this.fields.ref('bday-day'),
+			'bday-month': this.fields.ref('bday-month'),
+			'bday-year': this.fields.ref('bday-year'),
+			'sex': this.fields.ref('sex'),
+			'url': this.fields.ref('url'),
+			'photo': this.fields.ref('photo'),
+			'tel': this.fields.ref('tel'),
+			'tel-country-code': this.fields.ref('tel-country-code'),
+			'tel-national': this.fields.ref('tel-national'),
+			'tel-area-code': this.fields.ref('tel-area-code'),
+			'tel-local': this.fields.ref('tel-local'),
+			'tel-local-prefix': this.fields.ref('tel-local-prefix'),
+			'tel-local-suffix': this.fields.ref('tel-local-suffix'),
+			'tel-extension': this.fields.ref('tel-extension'),
+			'email': this.fields.ref('email'),
+			'impp': this.fields.ref('impp')
+		};
+
+		ok(f['name'].type === 'text', 'field(name).text check');
+		ok(f['honorific-prefix'].type === 'text', 'field(honorific-prefix).text check');
+		ok(f['given-name'].type === 'text', 'field(given-name).text check');
+		ok(f['additional-name'].type === 'text', 'field(additional-name).text check');
+		ok(f['family-name'].type === 'text', 'field(family-name).text check');
+		ok(f['honorific-suffix'].type === 'text', 'field(honorific-suffix).text check');
+		ok(f['nickname'].type === 'text', 'field(nickname).text check');
+		ok(f['organization-title'].type === 'text', 'field(organization-title).text check');
+		ok(f['username'].type === 'text', 'field(username).text check');
+		ok(f['new-password'].type === 'text', 'field(new-password).text check');
+		ok(f['current-password'].type === 'text', 'field(current-password).text check');
+		ok(f['organization'].type === 'text', 'field(organization).text check');
+		ok(f['street-address'].type === 'text', 'field(street-address).text check');
+		ok(f['address-line1'].type === 'text', 'field(address-line1).text check');
+		ok(f['address-line2'].type === 'text', 'field(address-line2).text check');
+		ok(f['address-line3'].type === 'text', 'field(address-line3).text check');
+		ok(f['address-level4'].type === 'text', 'field(address-level4).text check');
+		ok(f['address-level3'].type === 'text', 'field(address-level3).text check');
+		ok(f['address-level2'].type === 'text', 'field(address-level2).text check');
+		ok(f['address-level1'].type === 'text', 'field(address-level1).text check');
+		ok(f['country'].type === 'text', 'field(country).text check');
+		ok(f['country-name'].type === 'text', 'field(country-name).text check');
+		ok(f['postal-code'].type === 'text', 'field(postal-code).text check');
+		ok(f['cc-name'].type === 'text', 'field(cc-name).text check');
+		ok(f['cc-given-name'].type === 'text', 'field(cc-given-name).text check');
+		ok(f['cc-additional-name'].type === 'text', 'field(cc-additional-name).text check');
+		ok(f['cc-family-name'].type === 'text', 'field(cc-family-name).text check');
+		ok(f['cc-number'].type === 'text', 'field(cc-number).text check');
+		ok(f['cc-exp'].type === 'text', 'field(cc-exp).text check');
+		ok(f['cc-exp-month'].type === 'text', 'field(cc-exp-month).text check');
+		ok(f['cc-exp-year'].type === 'text', 'field(cc-exp-year).text check');
+		ok(f['cc-csc'].type === 'text', 'field(cc-csc).text check');
+		ok(f['cc-type'].type === 'text', 'field(cc-type).text check');
+		ok(f['transaction-currency'].type === 'text', 'field(transaction-currency).text check');
+		ok(f['transaction-amount'].type === 'text', 'field(transaction-amount).text check');
+		ok(f['language'].type === 'text', 'field(language).text check');
+		ok(f['bday'].type === 'text', 'field(bday).text check');
+		ok(f['bday-day'].type === 'text', 'field(bday-day).text check');
+		ok(f['bday-month'].type === 'text', 'field(bday-month).text check');
+		ok(f['bday-year'].type === 'text', 'field(bday-year).text check');
+		ok(f['sex'].type === 'text', 'field(sex).text check');
+		ok(f['url'].type === 'text', 'field(url).text check');
+		ok(f['photo'].type === 'text', 'field(photo).text check');
+		ok(f['tel'].type === 'text', 'field(tel).text check');
+		ok(f['tel-country-code'].type === 'text', 'field(tel-country-code).text check');
+		ok(f['tel-national'].type === 'text', 'field(tel-national).text check');
+		ok(f['tel-area-code'].type === 'text', 'field(tel-area-code).text check');
+		ok(f['tel-local'].type === 'text', 'field(tel-local).text check');
+		ok(f['tel-local-prefix'].type === 'text', 'field(tel-local-prefix).text check');
+		ok(f['tel-local-suffix'].type === 'text', 'field(tel-local-suffix).text check');
+		ok(f['tel-extension'].type === 'text', 'field(tel-extension).text check');
+		ok(f['email'].type === 'text', 'field(email).text check');
+		ok(f['impp'].type === 'text', 'field(impp).text check');
+
+		ok(f['name'].required, 'field(name).required check');
+		ok(f['honorific-prefix'].required, 'field(honorific-prefix).required check');
+		ok(!f['given-name'].required, 'field(given-name).required check');
+		ok(!f['additional-name'].required, 'field(additional-name).required check');
+		ok(!f['family-name'].required, 'field(family-name).required check');
+		ok(!f['honorific-suffix'].required, 'field(honorific-suffix).required check');
+		ok(!f['nickname'].required, 'field(nickname).required check');
+		ok(!f['organization-title'].required, 'field(organization-title).required check');
+		ok(!f['username'].required, 'field(username).required check');
+		ok(!f['new-password'].required, 'field(new-password).required check');
+		ok(!f['current-password'].required, 'field(current-password).required check');
+		ok(!f['organization'].required, 'field(organization).required check');
+		ok(!f['street-address'].required, 'field(street-address).required check');
+		ok(!f['address-line1'].required, 'field(address-line1).required check');
+		ok(!f['address-line2'].required, 'field(address-line2).required check');
+		ok(!f['address-line3'].required, 'field(address-line3).required check');
+		ok(!f['address-level4'].required, 'field(address-level4).required check');
+		ok(!f['address-level3'].required, 'field(address-level3).required check');
+		ok(!f['address-level2'].required, 'field(address-level2).required check');
+		ok(!f['address-level1'].required, 'field(address-level1).required check');
+		ok(!f['country'].required, 'field(country).required check');
+		ok(!f['country-name'].required, 'field(country-name).required check');
+		ok(!f['postal-code'].required, 'field(postal-code).required check');
+		ok(!f['cc-name'].required, 'field(cc-name).required check');
+		ok(!f['cc-given-name'].required, 'field(cc-given-name).required check');
+		ok(!f['cc-additional-name'].required, 'field(cc-additional-name).required check');
+		ok(!f['cc-family-name'].required, 'field(cc-family-name).required check');
+		ok(!f['cc-number'].required, 'field(cc-number).required check');
+		ok(!f['cc-exp'].required, 'field(cc-exp).required check');
+		ok(!f['cc-exp-month'].required, 'field(cc-exp-month).required check');
+		ok(!f['cc-exp-year'].required, 'field(cc-exp-year).required check');
+		ok(!f['cc-csc'].required, 'field(cc-csc).required check');
+		ok(!f['cc-type'].required, 'field(cc-type).required check');
+		ok(!f['transaction-currency'].required, 'field(transaction-currency).required check');
+		ok(!f['transaction-amount'].required, 'field(transaction-amount).required check');
+		ok(!f['language'].required, 'field(language).required check');
+		ok(!f['bday'].required, 'field(bday).required check');
+		ok(!f['bday-day'].required, 'field(bday-day).required check');
+		ok(!f['bday-month'].required, 'field(bday-month).required check');
+		ok(!f['bday-year'].required, 'field(bday-year).required check');
+		ok(!f['sex'].required, 'field(sex).required check');
+		ok(!f['url'].required, 'field(url).required check');
+		ok(!f['photo'].required, 'field(photo).required check');
+		ok(!f['tel'].required, 'field(tel).required check');
+		ok(!f['tel-country-code'].required, 'field(tel-country-code).required check');
+		ok(!f['tel-national'].required, 'field(tel-national).required check');
+		ok(!f['tel-area-code'].required, 'field(tel-area-code).required check');
+		ok(!f['tel-local'].required, 'field(tel-local).required check');
+		ok(!f['tel-local-prefix'].required, 'field(tel-local-prefix).required check');
+		ok(!f['tel-local-suffix'].required, 'field(tel-local-suffix).required check');
+		ok(!f['tel-extension'].required, 'field(tel-extension).required check');
+		ok(!f['email'].required, 'field(email).required check');
+		ok(!f['impp'].required, 'field(impp).required check');
+
+	});
 
 
 });

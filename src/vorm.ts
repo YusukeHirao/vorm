@@ -2,6 +2,8 @@ class Vorm {
 
 	public form: HTMLFormElement;
 	public fields: FieldList;
+	private _isReadied: boolean;
+	private _readyHandler: { (): any };
 
 	constructor (formNameOrFormNode: string | HTMLElement, rulesOption: IRulesOption) {
 
@@ -13,13 +15,26 @@ class Vorm {
 
 	}
 
+	public onReady (readyHandler: { (): any }): void {
+		this._readyHandler = readyHandler;
+		if (this._isReadied) {
+			this._readyHandler.call(this);
+		}
+	}
+
 	private _init (formNameOrFormNode: string | HTMLElement, rulesOption: IRulesOption): void {
+		this._isReadied = window.document.readyState === 'complete';
 
-		window.addEventListener('DOMContentLoaded', this._createVormObject.bind(this, formNameOrFormNode, rulesOption), false);
-
+		if (this._isReadied) {
+			this._createVormObject(formNameOrFormNode, rulesOption);
+		} else {
+			window.addEventListener('DOMContentLoaded', this._createVormObject.bind(this, formNameOrFormNode, rulesOption), false);
+		}
 	}
 
 	private _createVormObject (formNameOrFormNode: string | HTMLElement, rulesOption: IRulesOption): void {
+
+		this._isReadied = true;
 
 		var formNode: HTMLElement;
 
@@ -41,6 +56,10 @@ class Vorm {
 		this.form = <HTMLFormElement> formNode;
 
 		this.fields = new FieldList(this, rulesOption);
+
+		if (this._readyHandler) {
+			this._readyHandler.call(this);
+		}
 
 	}
 
